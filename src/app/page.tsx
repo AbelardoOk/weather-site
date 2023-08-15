@@ -6,7 +6,13 @@ export default function Home() {
       <div className="flex flex-row justify-around">
         <div className="flex flex-col justify-between py-8">
           <div className="text-left text-lg text-slate-800">
-            <h2 className="text-2xl font-medium">Aquidauana - Brasil</h2>
+            <input
+              className="bg-transparent text-2xl font-medium text-slate-800 focus:outline-none"
+              type="text"
+              placeholder="Digite a cidade aqui"
+              name="city"
+              id="city"
+            />
             <h3 className="font-medium">21 de Agosto, Segunda-feira</h3>
           </div>
 
