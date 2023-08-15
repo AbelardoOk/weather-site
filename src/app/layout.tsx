@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${roboto.variable} bg-gradient-to-tr from-slate-200 to-slate-50 font-sans text-slate-900`}
+        className={`${roboto.variable} h-screen bg-gradient-to-tl from-slate-300 to-slate-100 font-sans`}
       >
         {children}
       </body>
