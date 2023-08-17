@@ -18,6 +18,7 @@ export default function Home() {
 
   const API_KEY = "4e210f2d8d38eb0d142a7352ef4c5c80";
   const geocoding_URL = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit={limit}&appid=${API_KEY}`;
+  const openWeather_URL = `https://api.openweathermap.org/data/2.5/weather?lat=${coordinates.latitude}&lon=${coordinates.longitude}&appid=${API_KEY}`;
 
   const geocodeAddress = async (adress: string) => {
     try {
@@ -34,6 +35,22 @@ export default function Home() {
     }
   };
 
+  const fetchWeatherData = async (lat: any, lng: any) => {
+    try {
+      const response = await axios.get(openWeather_URL, {
+        params: {
+          lat: lat,
+          lon: lng,
+          units: "metric",
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   useEffect(() => {
     const getAdress = async () => {
       try {
@@ -41,6 +58,9 @@ export default function Home() {
         if (results.length > 0) {
           const { lat, lng } = results[0].geometry.location;
           setCoordinates({ latitude: lat, longitude: lng });
+
+          const data = await fetchWeatherData(lat, lng);
+          setWeather(data);
         }
       } catch (error) {
         console.error("Erro ao geocodificar o endereço:", error);
@@ -49,8 +69,6 @@ export default function Home() {
 
     getAdress();
   });
-
-  const openWeather_URL = `https://api.openweathermap.org/data/2.5/weather?lat=${coordinates.latitude}&lon=${coordinates.longitude}&appid=${API_KEY}`;
 
   return (
     <main className="flex h-screen flex-col justify-center">
@@ -71,7 +89,9 @@ export default function Home() {
 
           <div className="flex flex-col gap-4">
             <div className="gap flex flex-row items-end">
-              <h1 className="text-9xl font-extralight text-slate-800">23º</h1>
+              <h1 className="text-9xl font-extralight text-slate-800">
+                {weather.main.temp}º
+              </h1>
               <h2 className="text-4xl font-extralight text-slate-600">
                 mostly cloudy
               </h2>
