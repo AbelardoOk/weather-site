@@ -13,12 +13,12 @@ export default function Home() {
     // Sistema api clima
   }, [city]);
 
-  const [coordinates, setCoordinates] = useState(any);
-  const [weather, setWeather] = useState(any);
+  const [coordinates, setCoordinates] = useState<any>({});
+  const [weather, setWeather] = useState<any>({});
 
   const API_KEY = "4e210f2d8d38eb0d142a7352ef4c5c80";
   const geocoding_URL = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit={limit}&appid=${API_KEY}`;
-  const openWeather_URL = `https://api.openweathermap.org/data/2.5/weather?lat=${coordinates.latitude}&lon=${coordinates.longitude}&appid=${API_KEY}`;
+  const openWeather_URL = `https://api.openweathermap.org/data/3.0/onecall?lat=${coordinates.latitude}&lon=${coordinates.longitude}&appid=${API_KEY}`;
 
   const geocodeAddress = async (adress: string) => {
     try {
@@ -90,7 +90,7 @@ export default function Home() {
           <div className="flex flex-col gap-4">
             <div className="gap flex flex-row items-end">
               <h1 className="text-9xl font-extralight text-slate-800">
-                {weather.main.temp}º
+                {weather.current.temp}º
               </h1>
               <h2 className="text-4xl font-extralight text-slate-600">
                 mostly cloudy
