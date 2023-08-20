@@ -5,8 +5,9 @@ import axios from "axios";
 
 export default function Home() {
   const [city, setCity] = useState("");
+  const [dayTime, setDayTime] = useState(0);
 
-  const [time, setTime] = useState<any>();
+  const [time, setTime] = useState<any>("");
   const [coordinates, setCoordinates] = useState<any>({ lat: 0, lon: 0 });
   const [weather, setWeather] = useState<any>({
     temp: 0,
@@ -28,7 +29,6 @@ export default function Home() {
         const response = await axios.get(geocoding_URL);
         const { lat, lon } = response.data[0];
         setCoordinates({ lat, lon });
-        console.table(coordinates);
       } catch (error) {
         console.error("Erro na requisição:", error);
       }
@@ -46,8 +46,6 @@ export default function Home() {
           fells: feels_like,
           desc: description,
         });
-
-        console.table(weather);
       } catch (error) {
         console.error("Erro na requisição:", error);
       }
@@ -64,7 +62,6 @@ export default function Home() {
           const response = await axios.get(time_URL);
           const { formatted } = response.data;
           setTime(formatted);
-          console.log(time);
         } catch (error) {
           console.error("Erro na requisição:", error);
         }
@@ -76,6 +73,17 @@ export default function Home() {
       clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    switch (true) {
+      case time.substr(11, 2) >= 5:
+        setDayTime(0);
+      case time.substr(11, 2) >= 17 || time.substr(11, 2) <= 5:
+        setDayTime(1);
+      case time.substr(11, 2) >= 19 || time.substr(11, 2) >= 0:
+        setDayTime(2);
+    }
+  }, [time]);
 
   return (
     <main className="flex h-screen flex-col justify-center">
@@ -114,13 +122,39 @@ export default function Home() {
         </div>
 
         <div>
-          <Image
-            className="h-fit w-64 rounded-2xl shadow-xl"
-            src={"/Sun.png"}
-            alt=""
-            height={1334}
-            width={750}
-          />
+          {dayTime == 0 ? (
+            <Image
+              className="h-fit w-64 rounded-2xl shadow-xl"
+              src={"/Sun.png"}
+              alt=""
+              height={1334}
+              width={750}
+            />
+          ) : dayTime == 1 ? (
+            <Image
+              className="h-fit w-64 rounded-2xl shadow-xl"
+              src={"/Blood.png"}
+              alt=""
+              height={1334}
+              width={750}
+            />
+          ) : dayTime == 2 ? (
+            <Image
+              className="h-fit w-64 rounded-2xl shadow-xl"
+              src={"/Moon.png"}
+              alt=""
+              height={1334}
+              width={750}
+            />
+          ) : (
+            <Image
+              className="h-fit w-64 rounded-2xl shadow-xl"
+              src={"/Sun.png"}
+              alt=""
+              height={1334}
+              width={750}
+            />
+          )}
         </div>
       </div>
     </main>
