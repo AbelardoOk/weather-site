@@ -4,71 +4,54 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 export default function Home() {
-  const savedCity = localStorage.getItem("savedCity") || "";
-  const [city, setCity] = useState(savedCity.replace('"', ""));
+  const [city, setCity] = useState("");
 
-  useEffect(() => {
-    localStorage.setItem("savedCity", city);
-
-    // Sistema api clima
-  }, [city]);
-
-  const [coordinates, setCoordinates] = useState<any>({});
-  const [weather, setWeather] = useState<any>({});
+  const [coordinates, setCoordinates] = useState<any>({ lat: 0, lon: 0 });
+  const [weather, setWeather] = useState<any>({
+    temp: 0,
+    hum: 0,
+    fells: 0,
+    desc: "",
+  });
 
   const API_KEY = "4e210f2d8d38eb0d142a7352ef4c5c80";
-  const geocoding_URL = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit={limit}&appid=${API_KEY}`;
-  const openWeather_URL = `https://api.openweathermap.org/data/3.0/onecall?lat=${coordinates.latitude}&lon=${coordinates.longitude}&appid=${API_KEY}`;
-
-  const geocodeAddress = async (adress: string) => {
-    try {
-      const response = await axios.get(geocoding_URL, {
-        params: {
-          adress: adress,
-          key: API_KEY,
-        },
-      });
-
-      return response.data.results;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const fetchWeatherData = async (lat: any, lng: any) => {
-    try {
-      const response = await axios.get(openWeather_URL, {
-        params: {
-          lat: lat,
-          lon: lng,
-          units: "metric",
-        },
-      });
-
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
+  const geocoding_URL = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${API_KEY}`;
+  const openWeather_URL = `https://api.openweathermap.org/data/2.5/weather?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${API_KEY}&units=metric`;
 
   useEffect(() => {
-    const getAdress = async () => {
+    async function getCoords() {
       try {
-        const results = await geocodeAddress(city);
-        if (results.length > 0) {
-          const { lat, lng } = results[0].geometry.location;
-          setCoordinates({ latitude: lat, longitude: lng });
-
-          const data = await fetchWeatherData(lat, lng);
-          setWeather(data);
-        }
+        const response = await axios.get(geocoding_URL);
+        const { lat, lon } = response.data[0];
+        setCoordinates({ lat, lon });
+        console.table(coordinates);
       } catch (error) {
-        console.error("Erro ao geocodificar o endereço:", error);
+        console.error("Erro na requisição:", error);
       }
-    };
+    }
 
-    getAdress();
-  });
+    async function getWeather() {
+      try {
+        const response = await axios.get(openWeather_URL);
+        const { temp, humidity, feels_like } = response.data.main;
+        const { description } = response.data.weather[0];
+
+        setWeather({
+          temp: temp,
+          hum: humidity,
+          fells: feels_like,
+          desc: description,
+        });
+
+        console.table(weather);
+      } catch (error) {
+        console.error("Erro na requisição:", error);
+      }
+    }
+
+    getCoords();
+    getWeather();
+  }, [city]);
 
   return (
     <main className="flex h-screen flex-col justify-center">
@@ -90,16 +73,16 @@ export default function Home() {
           <div className="flex flex-col gap-4">
             <div className="gap flex flex-row items-end">
               <h1 className="text-9xl font-extralight text-slate-800">
-                {weather.current.temp}º
+                {weather.temp}º
               </h1>
               <h2 className="text-4xl font-extralight text-slate-600">
-                mostly cloudy
+                {weather.desc}
               </h2>
             </div>
 
             <div className="flex flex-row justify-around rounded-2xl border-2 border-slate-500 px-4 py-2 text-lg font-light text-slate-700">
-              <p>16º max</p>
-              <p>32º min</p>
+              <p>Feels Like {weather.fells} cº</p>
+              <p>{weather.hum}%</p>
             </div>
           </div>
         </div>
