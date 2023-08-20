@@ -6,6 +6,7 @@ import axios from "axios";
 export default function Home() {
   const [city, setCity] = useState("");
 
+  const [time, setTime] = useState<any>();
   const [coordinates, setCoordinates] = useState<any>({ lat: 0, lon: 0 });
   const [weather, setWeather] = useState<any>({
     temp: 0,
@@ -17,6 +18,9 @@ export default function Home() {
   const API_KEY = "4e210f2d8d38eb0d142a7352ef4c5c80";
   const geocoding_URL = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${API_KEY}`;
   const openWeather_URL = `https://api.openweathermap.org/data/2.5/weather?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${API_KEY}&units=metric`;
+
+  const time_API = "JQUV3STRMUZH";
+  const time_URL = `http://api.timezonedb.com/v2.1/get-time-zone?key=${time_API}&format=json&by=position&lat=${coordinates.lat}&lng=${coordinates.lon}`;
 
   useEffect(() => {
     async function getCoords() {
@@ -53,6 +57,26 @@ export default function Home() {
     getWeather();
   }, [city]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      async function getTime() {
+        try {
+          const response = await axios.get(time_URL);
+          const { formatted } = response.data;
+          setTime(formatted);
+          console.log(time);
+        } catch (error) {
+          console.error("Erro na requisição:", error);
+        }
+      }
+      getTime();
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <main className="flex h-screen flex-col justify-center">
       <div className="flex flex-row justify-around">
@@ -67,7 +91,9 @@ export default function Home() {
               value={city}
               onChange={(e) => setCity(e.target.value)}
             />
-            <h3 className="font-medium">21 de Agosto, Segunda-feira</h3>
+            <h3 className="font-medium">
+              {time.substr(8, 2)} de Agosto, {time.substr(11)}
+            </h3>
           </div>
 
           <div className="flex flex-col gap-4">
